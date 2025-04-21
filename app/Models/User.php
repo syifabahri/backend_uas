@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasUlids;
+    use HasApiTokens, HasFactory, Notifiable, HasUlids;
 
     /**
      * The attributes that are mass assignable.
@@ -23,8 +23,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'username',
         'email',
+        'username',
         'password',
     ];
 
@@ -46,8 +46,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'name'=>'string',
+            'username'=>'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
+
+    public function setUsernameAttribute($value)
+{
+    $this->attributes['username'] = strtolower($value);
+}
 }
