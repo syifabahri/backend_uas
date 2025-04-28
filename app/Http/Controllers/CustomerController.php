@@ -55,9 +55,9 @@ class CustomerController extends Controller
               $customer = Customer::findOrFail($id);
   
               $request->validate([
-                'customer_name' => 'sometimes|required|string|max:255',
-                'alamat' => 'sometimes|required|string|max:255',
-                'no_hp' => 'sometimes|required|max:15|min:8|unique:customer,no_hp',
+                'customer_name' => 'sometimes|string|max:255',
+                'alamat' => 'sometimes|string|max:255',
+                'no_hp' => 'sometimes|max:15|min:8|unique:customer,no_hp',
             ]);
   
               // Hanya update field yang dikirim
