@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\UserController;
 
 
@@ -21,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // });
 
     Route::apiResource('user', UserController::class);
+    Route::apiResource('customer', CustomerController::class);
    
 });
 
