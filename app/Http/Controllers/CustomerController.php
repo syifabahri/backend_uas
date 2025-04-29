@@ -68,8 +68,8 @@ class CustomerController extends Controller
   
               return response()->json([
                   'message' => $customer->wasChanged()
-                      ? 'Akun pengguna berhasil diupdate.'
-                      : 'Tidak ada perubahan pada data pengguna.',
+                      ? 'Akun customer berhasil diupdate.'
+                      : 'Tidak ada perubahan pada data customer.',
                   'data' => $customer
               ], 200);
           } catch (ModelNotFoundException $e) {
