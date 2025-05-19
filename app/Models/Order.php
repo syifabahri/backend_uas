@@ -10,7 +10,7 @@ class Order extends Model
 {
     use HasUlids;
     
-    protected $table = 'customer';
+    protected $table = 'order';
     
     protected $fillable = [
         'customer_id',
