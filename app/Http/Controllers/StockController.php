@@ -11,9 +11,8 @@ class StockController extends Controller
 {
     public function index(): JsonResponse
     {
-
-        $dataStock = Stock::all();
-        return response()->json($dataStock, 200);
+    $dataStock = Stock::with('barang')->get();
+    return response()->json($dataStock, 200);
     }
 
     public function show($id): JsonResponse
@@ -58,7 +57,7 @@ class StockController extends Controller
             ]);
   
               // Hanya update field yang dikirim
-              $data = $request->only(['barang_id', 'limit']);
+              $data = $request->only(['id_barang', 'limit']);
 
               $stock->update($data);
               
