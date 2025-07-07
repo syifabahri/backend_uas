@@ -31,6 +31,6 @@ class Barang extends Model
     }
 
     public function order():HasMany{
-        return $this->hasMany(Order::class,'barang_id');
+        return $this->hasMany(Order::class,'id_barang');
     }
 }

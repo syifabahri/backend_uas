@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Order extends Model
 {
     use HasUlids;
-    
+
     protected $table = 'order';
-    
+
     protected $fillable = [
         'customer_id',
         'id_barang',
@@ -28,11 +28,13 @@ class Order extends Model
         ];
     }
 
-    public function customer():BelongsTo{
-        return $this->belongsTo(Customer::class, 'customer_id');
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
-    public function barang():BelongsTo{
-        return $this->belongsTo(Barang::class, 'barang_id');
+    public function barang(): BelongsTo
+    {
+        return $this->belongsTo(Barang::class, 'id_barang');
     }
 }

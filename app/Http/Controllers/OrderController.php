@@ -12,8 +12,9 @@ class OrderController extends Controller
     public function index(): JsonResponse
     {
 
-        $dataOrder = Order::all();
-        return response()->json($dataOrder, 200);
+        $orders = Order::with(['customer', 'barang'])->get();
+
+        return response()->json($orders);
     }
 
     public function show($id): JsonResponse
