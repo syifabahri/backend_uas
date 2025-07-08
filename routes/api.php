@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('barang', BarangController::class);
     Route::apiResource('stock', StockController::class);
     Route::apiResource('order', OrderController::class);
+    Route::patch('/barang/{id}/kurangi-stok', [BarangController::class, 'kurangiStok']);
    
 });
 

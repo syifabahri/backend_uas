@@ -48,44 +48,70 @@ class BarangController extends Controller
         ], 201);
     }
 
-      // Mengupdate data user
-      public function update(Request $request, $id): JsonResponse
-      {
-          try {
-              $barang = Barang::findOrFail($id);
-  
-              $request->validate([
+    // Mengupdate data user
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $barang = Barang::findOrFail($id);
+
+            $request->validate([
                 'nama_barang' => 'sometimes|string|max:255',
                 'harga' => 'sometimes|integer',
                 'jumlah' => 'sometimes|numeric|min:0',
             ]);
-  
-              // Hanya update field yang dikirim
-              $data = $request->only(['nama_barang', 'harga', 'jumlah']);
 
-              $barang->update($data);
-              
-  
-              return response()->json([
-                  'message' => $barang->wasChanged()
-                      ? 'Data barang berhasil diupdate.'
-                      : 'Tidak ada perubahan pada data barang.',
-                  'data' => $barang
-              ], 200);
-          } catch (ModelNotFoundException $e) {
-              return response()->json(['message' => 'Data barang tidak ditemukan'], 404);
-          }
-      }
-  
-      public function destroy($id): JsonResponse
-      {
-          try {
-              $barang = Barang::findOrFail($id);
-              $barang->delete();
-  
-              return response()->json(['message' => 'Data barang berhasil dihapus.']);
-          } catch (ModelNotFoundException $e) {
-              return response()->json(['message' => 'Data barang tidak ditemukan.'], 404);
-          }
-      }
+            // Hanya update field yang dikirim
+            $data = $request->only(['nama_barang', 'harga', 'jumlah']);
+
+            $barang->update($data);
+
+
+            return response()->json([
+                'message' => $barang->wasChanged()
+                    ? 'Data barang berhasil diupdate.'
+                    : 'Tidak ada perubahan pada data barang.',
+                'data' => $barang
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data barang tidak ditemukan'], 404);
+        }
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $barang = Barang::findOrFail($id);
+            $barang->delete();
+
+            return response()->json(['message' => 'Data barang berhasil dihapus.']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data barang tidak ditemukan.'], 404);
+        }
+    }
+
+// BarangController.php
+public function kurangiStok(Request $request, $id)
+{
+    $request->validate([
+        'jumlah' => 'required|integer|min:1',
+    ]);
+
+    $barang = Barang::findOrFail($id);
+    
+    if ($barang->jumlah < $request->jumlah) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Stok tidak mencukupi',
+        ], 422);
+    }
+
+    $barang->jumlah -= $request->jumlah;
+    $barang->save();
+
+    return response()->json([
+        'success' => true,
+        'data' => $barang,
+    ]);
+}
+
 }
