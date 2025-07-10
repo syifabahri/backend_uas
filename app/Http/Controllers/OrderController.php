@@ -12,7 +12,7 @@ class OrderController extends Controller
     public function index(): JsonResponse
     {
 
-        $orders = Order::with(['customer', 'barang'])->get();
+        $orders = Order::with(['customer'])->get();
 
         return response()->json($orders);
     }
@@ -28,29 +28,18 @@ class OrderController extends Controller
     }
 
     // Menambahkan user baru
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $request->validate([
-            'customer_id' => 'required|string|max:255',
-            'id_barang' => 'required|string|max:255',
-            'order_date' => 'required|string|date',
-            'jumlah_barang' => 'required|integer',
+        $data = $request->validate([
+            'customer_id' => 'required|exists:customer,id',
             'total' => 'required|integer',
+            'order_date' => 'required|date',
         ]);
 
-        $order = Order::create([
-            'customer_id' => $request->customer_id,
-            'id_barang' => $request->id_barang,
-            'order_date' => $request->order_date,
-            'jumlah_barang' => $request->jumlah_barang,
-            'total' => $request->total,
-        ]);
+        $order = Order::create($data);
+        $order->load('customer');
 
-
-        return response()->json([
-            'message' => 'Data order berhasil ditambahkan.',
-            'data' => $order
-        ], 201);
+        return response()->json($order);
     }
 
     // Mengupdate data user
@@ -61,14 +50,12 @@ class OrderController extends Controller
 
             $request->validate([
                 'customer_id' => 'sometimes|string|max:255',
-                'id_barang' => 'sometimes|string|max:255',
                 'order_date' => 'sometimes|string|date',
-                'jumlah_barang' => 'sometimes|integer',
                 'total' => 'sometimes|integer',
             ]);
 
             // Hanya update field yang dikirim
-            $data = $request->only(['customer_id', 'id_barang', 'order_date', 'jumlah_barang', 'total']);
+            $data = $request->only(['customer_id', 'order_date', 'total']);
 
             $order->update($data);
 

@@ -7,9 +7,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
-
+use App\Models\OrderDetails;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -29,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('barang', BarangController::class);
     Route::apiResource('stock', StockController::class);
     Route::apiResource('order', OrderController::class);
+    Route::apiResource('orderDetail', OrderDetailsController::class);
+    Route::post('/orderDetail/{id_order}/details', [OrderDetailsController::class, 'store']);
     Route::patch('/barang/{id}/kurangi-stok', [BarangController::class, 'kurangiStok']);
    
 });
