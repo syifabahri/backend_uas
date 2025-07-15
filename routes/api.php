@@ -33,7 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('orderDetail', OrderDetailsController::class);
     Route::post('/orderDetail/{id_order}/details', [OrderDetailsController::class, 'store']);
     Route::patch('/barang/{id}/kurangi-stok', [BarangController::class, 'kurangiStok']);
-   
+    Route::patch('/order/{id}/updateTotal', [OrderController::class, 'updateTotal']);
+    Route::get('/orderDetail/{orderId}', [OrderDetailsController::class, 'getDetailsByOrderId']);
+    Route::get('/orderDetail/{order_id}', [OrderDetailsController::class, 'show']);
+  
 });
 
 

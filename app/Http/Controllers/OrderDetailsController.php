@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
 use App\Models\Order;
+use App\Models\Barang;
 use App\Models\OrderDetails;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrderDetailsController extends Controller
@@ -18,55 +19,34 @@ class OrderDetailsController extends Controller
 
         return response()->json($orderDetails);
     }
-
-    public function show($id): JsonResponse
+    public function show($order_id): JsonResponse
     {
-        try {
-            $order = OrderDetails::findOrFail($id);
-            return response()->json($order, 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Orders details tidak ditemukan'], 404);
+        $details = OrderDetails::with('barang') // optional: eager load relasi barang
+            ->where('order_id', $order_id)
+            ->get();
+
+        if ($details->isEmpty()) {
+            return response()->json(['message' => 'Order details tidak ditemukan'], 404);
         }
+
+        return response()->json($details, 200);
     }
 
-   public function store(Request $request, $id_order)
+
+
+public function store(Request $request, $orderId)
 {
-    try {
-        $data = $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.id_barang' => 'required|exists:barang,id',
-            'items.*.jumlah' => 'required|integer|min:1',
+    $items = $request->input('items', []);
+
+    foreach ($items as $item) {
+        OrderDetails::create([
+            'order_id' => $orderId,
+            'id_barang' => $item['id_barang'],
+            'jumlah' => $item['jumlah'],
         ]);
-
-        $results = [];
-
-        foreach ($data['items'] as $item) {
-            $barang = Barang::findOrFail($item['id_barang']);
-            $harga = $barang->harga;
-            $subtotal = $harga * $item['jumlah'];
-
-            $orderDetail = OrderDetails::create([
-                'order_id' => $id_order, // pastikan field ini sesuai dengan nama kolom di DB
-                'id_barang' => $item['id_barang'],
-                'jumlah' => $item['jumlah'],
-                'harga_satuan' => $harga,
-                'total' => $subtotal,
-            ]);
-
-            $results[] = $orderDetail;
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $results,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Server Error: ' . $e->getMessage(),
-            'trace' => $e->getTrace(),
-        ], 500);
     }
+
+    return response()->json(['message' => 'Order details berhasil disimpan']);
 }
 
 
@@ -109,6 +89,19 @@ class OrderDetailsController extends Controller
             return response()->json(['message' => 'Order berhasil dihapus.']);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Order tidak ditemukan.'], 404);
+        }
+    }
+
+    public function getDetailsByOrderId($orderId): JsonResponse
+    {
+        try {
+            $details = OrderDetails::with('barang') // relasi ke tabel barang
+                ->where('order_id', $orderId)
+                ->get();
+
+            return response()->json($details, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengambil detail order'], 500);
         }
     }
 }

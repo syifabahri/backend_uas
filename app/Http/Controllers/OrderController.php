@@ -20,10 +20,11 @@ class OrderController extends Controller
     public function show($id): JsonResponse
     {
         try {
-            $order = Order::findOrFail($id);
+            $order = Order::with(['customer', 'details.barang'])->findOrFail($id);
+
             return response()->json($order, 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Orders tidak ditemukan'], 404);
+            return response()->json(['message' => 'Order tidak ditemukan'], 404);
         }
     }
 
@@ -81,5 +82,14 @@ class OrderController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Order tidak ditemukan.'], 404);
         }
+    }
+
+    public function updateTotal(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->total = $request->input('total');
+        $order->save();
+
+        return response()->json(['message' => 'Order total updated']);
     }
 }
