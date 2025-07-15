@@ -33,11 +33,33 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request)
-{
-    $request->user()->currentAccessToken()->delete();
+    {
+        $request->user()->currentAccessToken()->delete();
 
-    return response()->json([
-        'message' => 'Logout berhasil.',
-    ]);
-}
+        return response()->json([
+            'message' => 'Logout berhasil.',
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'password' => 'required|string|min:6',
+            'email' => 'required|email',
+        ]);
+
+        $user = User::create([
+            'name'     => $data['name'],
+            'username' => $data['username'],
+            'password' => Hash::make($data['password']),
+            'email' => $data['email'],
+        ]);
+
+        return response()->json([
+            'message' => 'User berhasil terdaftar',
+            'user' => $user,
+        ], 201);
+    }
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Models\OrderDetails;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'customers' => \App\Models\Customer::count(),
             'barangs' => \App\Models\Barang::count(),
             'orders' => \App\Models\Order::count(),
+            'total_pendapatan' => \App\Models\Order::sum('total'),
         ]);
     });
 });
