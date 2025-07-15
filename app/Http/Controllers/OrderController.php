@@ -92,4 +92,13 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Order total updated']);
     }
+
+        public function count()
+    {
+        $count = \App\Models\Order::count();
+
+        return response()->json([
+            'total' => $count
+        ]);
+    }
 }

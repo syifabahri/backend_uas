@@ -89,29 +89,37 @@ class BarangController extends Controller
         }
     }
 
-// BarangController.php
-public function kurangiStok(Request $request, $id)
-{
-    $request->validate([
-        'jumlah' => 'required|integer|min:1',
-    ]);
+    // BarangController.php
+    public function kurangiStok(Request $request, $id)
+    {
+        $request->validate([
+            'jumlah' => 'required|integer|min:1',
+        ]);
 
-    $barang = Barang::findOrFail($id);
-    
-    if ($barang->jumlah < $request->jumlah) {
+        $barang = Barang::findOrFail($id);
+
+        if ($barang->jumlah < $request->jumlah) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stok tidak mencukupi',
+            ], 422);
+        }
+
+        $barang->jumlah -= $request->jumlah;
+        $barang->save();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Stok tidak mencukupi',
-        ], 422);
+            'success' => true,
+            'data' => $barang,
+        ]);
     }
 
-    $barang->jumlah -= $request->jumlah;
-    $barang->save();
+    public function count()
+    {
+        $count = \App\Models\Barang::count();
 
-    return response()->json([
-        'success' => true,
-        'data' => $barang,
-    ]);
-}
-
+        return response()->json([
+            'total' => $count
+        ]);
+    }
 }

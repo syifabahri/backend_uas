@@ -21,7 +21,7 @@ class OrderDetailsController extends Controller
     }
     public function show($order_id): JsonResponse
     {
-        $details = OrderDetails::with('barang') // optional: eager load relasi barang
+        $details = OrderDetails::with('barang')
             ->where('order_id', $order_id)
             ->get();
 
@@ -32,23 +32,40 @@ class OrderDetailsController extends Controller
         return response()->json($details, 200);
     }
 
+    public function store(Request $request, $orderId)
+    {
+        $items = $request->input('items', []);
 
+        DB::beginTransaction();
+        try {
+            foreach ($items as $item) {
+                // 1. Simpan ke order_details
+                OrderDetails::create([
+                    'order_id' => $orderId,
+                    'id_barang' => $item['id_barang'],
+                    'jumlah' => $item['jumlah'],
+                ]);
 
-public function store(Request $request, $orderId)
-{
-    $items = $request->input('items', []);
+                // 2. Kurangi stok barang
+                $barang = Barang::findOrFail($item['id_barang']);
+                if ($barang->jumlah < $item['jumlah']) {
+                    throw new \Exception("Stok barang '{$barang->nama_barang}' tidak mencukupi.");
+                }
 
-    foreach ($items as $item) {
-        OrderDetails::create([
-            'order_id' => $orderId,
-            'id_barang' => $item['id_barang'],
-            'jumlah' => $item['jumlah'],
-        ]);
+                $barang->jumlah -= $item['jumlah'];
+                $barang->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Order details berhasil disimpan']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Gagal menyimpan order details',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-
-    return response()->json(['message' => 'Order details berhasil disimpan']);
-}
-
 
 
     // Mengupdate data user

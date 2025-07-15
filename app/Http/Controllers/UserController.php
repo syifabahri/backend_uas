@@ -59,18 +59,18 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|unique:users,email,' . $id,
-                'username' => 'sometimes|string|max:255|unique:users,username,'.$id,
+                'username' => 'sometimes|string|max:255|unique:users,username,' . $id,
                 'password' => 'sometimes|string|min:8',
             ]);
 
             // Hanya update field yang dikirim
-            $data = $request->only(['name', 'email', 'password','username']);
+            $data = $request->only(['name', 'email', 'password', 'username']);
             if (isset($data['password'])) {
                 $data['password'] = bcrypt($data['password']);
             }
             logger('Data yg dikirim', $data);
             $user->update($data);
-            
+
 
             return response()->json([
                 'message' => $user->wasChanged()
@@ -93,5 +93,14 @@ class UserController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'User tidak ditemukan.'], 404);
         }
+    }
+
+    public function count()
+    {
+        $count = \App\Models\User::count();
+
+        return response()->json([
+            'total' => $count
+        ]);
     }
 }

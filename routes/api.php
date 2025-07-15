@@ -31,15 +31,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('stock', StockController::class);
     Route::apiResource('order', OrderController::class);
     Route::apiResource('orderDetail', OrderDetailsController::class);
-    Route::post('/orderDetail/{id_order}/details', [OrderDetailsController::class, 'store']);
+    // Route::post('/orderDetail/{id_order}/details', [OrderDetailsController::class, 'store']);
+    Route::post('/orderDetail/{orderId}', [OrderDetailsController::class, 'store']);
     Route::patch('/barang/{id}/kurangi-stok', [BarangController::class, 'kurangiStok']);
     Route::patch('/order/{id}/updateTotal', [OrderController::class, 'updateTotal']);
     Route::get('/orderDetail/{orderId}', [OrderDetailsController::class, 'getDetailsByOrderId']);
     Route::get('/orderDetail/{order_id}', [OrderDetailsController::class, 'show']);
-  
+    Route::get('/dashboard-counts', function () {
+        return response()->json([
+            'users' => \App\Models\User::count(),
+            'customers' => \App\Models\Customer::count(),
+            'barangs' => \App\Models\Barang::count(),
+            'orders' => \App\Models\Order::count(),
+        ]);
+    });
 });
-
-
-
-
-

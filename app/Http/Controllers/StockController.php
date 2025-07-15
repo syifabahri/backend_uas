@@ -11,8 +11,8 @@ class StockController extends Controller
 {
     public function index(): JsonResponse
     {
-    $dataStock = Stock::with('barang')->get();
-    return response()->json($dataStock, 200);
+        $dataStock = Stock::with('barang')->get();
+        return response()->json($dataStock, 200);
     }
 
     public function show($id): JsonResponse
@@ -45,43 +45,52 @@ class StockController extends Controller
         ], 201);
     }
 
-      // Mengupdate data user
-      public function update(Request $request, $id): JsonResponse
-      {
-          try {
-              $stock = Stock::findOrFail($id);
-  
-              $request->validate([
+    // Mengupdate data user
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $stock = Stock::findOrFail($id);
+
+            $request->validate([
                 'id_barang' => 'sometimes|string|max:255',
                 'limit' => 'sometimes|integer|max:255',
             ]);
-  
-              // Hanya update field yang dikirim
-              $data = $request->only(['id_barang', 'limit']);
 
-              $stock->update($data);
-              
-  
-              return response()->json([
-                  'message' => $stock->wasChanged()
-                      ? 'Data stock berhasil diupdate.'
-                      : 'Tidak ada perubahan pada data stock.',
-                  'data' => $stock
-              ], 200);
-          } catch (ModelNotFoundException $e) {
-              return response()->json(['message' => 'Stock tidak ditemukan'], 404);
-          }
-      }
-  
-      public function destroy($id): JsonResponse
-      {
-          try {
-              $stock = Stock::findOrFail($id);
-              $stock->delete();
-  
-              return response()->json(['message' => 'Stock berhasil dihapus.']);
-          } catch (ModelNotFoundException $e) {
-              return response()->json(['message' => 'Stock tidak ditemukan.'], 404);
-          }
-      }
+            // Hanya update field yang dikirim
+            $data = $request->only(['id_barang', 'limit']);
+
+            $stock->update($data);
+
+
+            return response()->json([
+                'message' => $stock->wasChanged()
+                    ? 'Data stock berhasil diupdate.'
+                    : 'Tidak ada perubahan pada data stock.',
+                'data' => $stock
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Stock tidak ditemukan'], 404);
+        }
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $stock = Stock::findOrFail($id);
+            $stock->delete();
+
+            return response()->json(['message' => 'Stock berhasil dihapus.']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Stock tidak ditemukan.'], 404);
+        }
+    }
+
+    public function count()
+    {
+        $count = \App\Models\Stock::count();
+
+        return response()->json([
+            'total' => $count
+        ]);
+    }
 }

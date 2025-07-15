@@ -88,4 +88,13 @@ class CustomerController extends Controller
               return response()->json(['message' => 'Customer tidak ditemukan.'], 404);
           }
       }
+
+          public function count()
+    {
+        $count = \App\Models\Customer::count();
+
+        return response()->json([
+            'total' => $count
+        ]);
+    }
 }
