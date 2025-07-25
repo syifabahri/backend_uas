@@ -1,50 +1,51 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderDetailsController;
-use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
-use App\Models\OrderDetails;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\LoanController;
+use App\Http\Controllers\BookAuthorController;
 
+// 🔐 Login dan Register (tanpa token)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+// 🔐 Semua rute di bawah ini pakai Sanctum token
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    //Akun
-    // Route::controller(UserController::class)->group(function(){
-    //     Route::get('/user', 'index');
-    //     Route::post('/user/store', 'store');
-    //     Route::patch('/user/{id}/update', 'update');
-    //     Route::get('/user/{id}','show');
-    //     Route::delete('/user/{id}', 'destroy');
-    // });
 
-    Route::apiResource('user', UserController::class);
-    Route::apiResource('customer', CustomerController::class);
-    Route::apiResource('barang', BarangController::class);
-    Route::apiResource('stock', StockController::class);
-    Route::apiResource('order', OrderController::class);
-    Route::apiResource('orderDetail', OrderDetailsController::class);
-    // Route::post('/orderDetail/{id_order}/details', [OrderDetailsController::class, 'store']);
-    Route::post('/orderDetail/{orderId}', [OrderDetailsController::class, 'store']);
-    Route::patch('/barang/{id}/kurangi-stok', [BarangController::class, 'kurangiStok']);
-    Route::patch('/order/{id}/updateTotal', [OrderController::class, 'updateTotal']);
-    Route::get('/orderDetail/{orderId}', [OrderDetailsController::class, 'getDetailsByOrderId']);
-    Route::get('/orderDetail/{order_id}', [OrderDetailsController::class, 'show']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // 👤 User
+    Route::apiResource('users', UserController::class);
+    Route::get('/users-count', [UserController::class, 'count']);
+
+    // 📚 Buku
+    Route::apiResource('books', BookController::class);
+
+    // ✍️ Penulis
+    Route::apiResource('authors', AuthorController::class);
+
+    // 🔁 Relasi Buku ↔ Penulis (custom karena tidak pakai ID)
+    Route::get('/book-authors', [BookAuthorController::class, 'index']);
+    Route::post('/book-authors', [BookAuthorController::class, 'store']);
+    Route::get('/book-authors/{book_id}/{author_id}', [BookAuthorController::class, 'show']);
+    Route::patch('/book-authors/{book_id}/{author_id}', [BookAuthorController::class, 'update']);
+    Route::delete('/book-authors/{book_id}/{author_id}', [BookAuthorController::class, 'destroy']);
+
+    // 📥 Peminjaman Buku
+    Route::apiResource('loans', LoanController::class);
+
+    // 📊 Statistik Dashboard
     Route::get('/dashboard-counts', function () {
         return response()->json([
             'users' => \App\Models\User::count(),
-            'customers' => \App\Models\Customer::count(),
-            'barangs' => \App\Models\Barang::count(),
-            'orders' => \App\Models\Order::count(),
-            'total_pendapatan' => \App\Models\Order::sum('total'),
+            'books' => \App\Models\Book::count(),
+            'authors' => \App\Models\Author::count(),
+            'loans' => \App\Models\Loan::count(),
+            'book_authors' => \App\Models\BookAuthor::count(), // Tambahkan penghitungan untuk book_authors
         ]);
     });
 });

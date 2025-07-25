@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasUlids;
+
+    protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -22,10 +23,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'username',
         'password',
+        'membership_date',
     ];
 
     /**
@@ -46,15 +49,27 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'name'=>'string',
-            'username'=>'string',
+            'name' => 'string',
+            'username' => 'string',
+            'membership_date' => 'date',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
 
-    public function setUsernameAttribute($value)
-{
-    $this->attributes['username'] = strtolower($value);
-}
+    /**
+     * Automatically lowercase the username when saving.
+     */
+    public function setUsernameAttribute($value): void
+    {
+        $this->attributes['username'] = strtolower($value);
+    }
+
+    /**
+     * Get all loans for this user.
+     */
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class, 'user_id', 'user_id');
+    }
 }

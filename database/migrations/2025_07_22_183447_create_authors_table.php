@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->foreignUlid('id_barang')->constrained('barang')->cascadeOnDelete();
-            $table->integer('limit');
-            $table->timestamps();
-        });
+         Schema::create('authors', function (Blueprint $table) {
+        $table->string('author_id')->primary();
+        $table->string('name');
+        $table->string('nationality');
+        $table->string('birthdate');
+        $table->timestamps();
+    });
     }
 
     /**
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stock');
+        Schema::dropIfExists('authors');
     }
 };
